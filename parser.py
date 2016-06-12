@@ -128,7 +128,7 @@ def write_to_csv(csv_f, idx, data_lst):
 crawler = Crawler(el.election_str, _SECONDS_PER_REQUEST)
 
 # Get the file containing all the ids and names
-pdata = crawler.get(el.top_level_url)
+pdata = crawler.get(el.get_url('top', 0, False))
 
 # Top level file contains information for the following levels:
 # 'epik' -> nationwide, top administrative level
@@ -164,7 +164,7 @@ logger.info(u'Municipal units info parsed successfully')
 #-------------------------------------------------------------------------------
 
 for mu_id, mu_dict in municipal_units.items():
-    url = el.munit_url(mu_id)
+    url =  el.get_url('den', mu_id, True)
     results = crawler.get(url)
     if not check(mu_id, mu_dict, results, 'DEN_ID'):
         continue
@@ -186,7 +186,7 @@ for mu_id, mu_dict in municipal_units.items():
 # special polling stations don't belong to any municipality or unit
 # add one extra "municipality" and "unit" in each district to aggregate the
 # special polling station results
-if el.has_special():
+if el.has_special:
     # add empty entries first
     specials = dict()
     max_municipality = max([m_id for m_id in municipalities.keys()])
@@ -206,28 +206,28 @@ if el.has_special():
     for district_id in districts:
         if el.has_special_list():
             mu_dict = specials[district_id]
-            url = el.special_list_url(district_id)
+            url = el.get_url('special', district_id, False)
             special_lst = crawler.get(url)
             for special in special_lst:
-                url = el.pstation_url(special['TM_ID'])
+                url = el.get_url('tm', special['TM_ID'], True)
                 results = crawler.get(url)
                 add(mu_dict, translate_result(results))
                 mu_dict['lower_cnt'] += 1
         else:
-            url = el.district_url(district_id)
+            url = el.get_url('ep', district_id, False)
             district_data = crawler.get(url)
             start_id = district_data['CountTmK'] - district_data['CountTmM'] + 1
             end_id = district_data['CountTmGeo'] + 1
             for pstation_id in range(start_id, end_id):
                 real_pstation_id = 10000 * district_id + pstation_id
-                url = el.pstation_static_url(real_pstation_id)
+                url = el.get_url('tm', real_pstation_id, False)
                 results = crawler.get(url)
                 if results['DHM_ID'] != 0:
                     continue
                 real_district_id = results['EP_ID']
                 mu_dict = specials[real_district_id]
 
-                url = el.pstation_url(real_pstation_id)
+                url = el.get_url('tm', real_pstation_id, True)
                 results = crawler.get(url)
                 add(mu_dict, translate_result(results))
                 mu_dict['lower_cnt'] += 1

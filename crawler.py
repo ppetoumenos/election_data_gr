@@ -25,12 +25,19 @@ class Crawler(object):
         self.scrapped_dir = os.path.join(self.data_dir, 'scrapped')
         if not os.path.exists(self.scrapped_dir):
             os.makedirs(self.scrapped_dir)
+            os.makedirs(os.join.path(self.scrapped_dir, 'static'))
+            os.makedirs(os.join.path(self.scrapped_dir, 'dyn'))
         self.limit = seconds_per_request
         self.next_request = 0.0
 
     def get(self, url):
         fname = url.rpartition('/')[2]
+        if 'dyn' in url:
+            fname = os.path.join('dyn', fname)
+        else:
+            fname = os.path.join('static', fname)
         fname = os.path.join(self.scrapped_dir, fname)
+
         if not os.path.exists(fname):
             self.wait()
             logging.info('Sending request for {0}'.format(url))
