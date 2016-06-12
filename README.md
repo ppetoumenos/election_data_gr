@@ -5,7 +5,7 @@ Each data point provides votes per party, registered/valid/invalid/blank votes, 
 For the moment there are no results for individual polling stations or for individual candidates.
 
 The data are located in the csv files, whose names follow the format:
-<ElectionDate YYYYMMDD>\_<lvl>.csv
+\<ElectionDate YYYYMMDD\>\_<lvl>.csv
 lvl is the administrative level -> municipal\_unit, municipality, or district.
 
 The files are encoded in UTF-8.
